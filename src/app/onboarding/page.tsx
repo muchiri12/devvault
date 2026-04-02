@@ -59,10 +59,10 @@ export default function OnboardingPage() {
             return;
         }
 
-        // 2. Create the profile row in the database
+        // 2. Create or update the profile row in the database
         const { error: insertError } = await supabase
             .from("profiles")
-            .insert({
+            .upsert({
                 id: userId,
                 username: cleanUsername,
             });
