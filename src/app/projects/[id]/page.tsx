@@ -63,8 +63,8 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#050505] text-black dark:text-white relative z-0 pb-24 transition-colors duration-300">
       
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-200/20 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
+      {/* Background linear gradient */}
+      <div className="absolute inset-0 z-[-1] bg-linear-to-b from-zinc-200/20 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
 
       {/* THE CREATOR STICKY HEADER - Only show if accessed from Dashboard */}
       {isFromDashboard && (

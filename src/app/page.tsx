@@ -1,10 +1,20 @@
 import Link from "next/link";
+import { createServerSupabaseClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Check for active session and auto-redirect if logged in
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#050505] selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black font-sans flex flex-col text-gray-900 transition-colors duration-300 relative z-0">
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
+      {/* Background soft linear gradient (Tailwind v4 compatible) */}
+      <div className="absolute inset-0 z-[-1] bg-linear-to-b from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
       {/* 1. NAVIGATION BAR */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 md:py-6 max-w-7xl mx-auto w-full z-10 sticky top-0 bg-[#FAFAFA]/80 dark:bg-[#050505]/80 backdrop-blur-md border-b border-gray-200/40 dark:border-white/5 transition-colors duration-300">
         <div className="flex items-center gap-3">
@@ -34,14 +44,14 @@ export default function LandingPage() {
         <div className="absolute inset-0 -z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGgyMHYyMEgyMHoiIGZpbGw9IiMwMDAwMDAwMiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+')] dark:opacity-[0.05] opacity-[0.15] pointer-events-none transition-opacity duration-300"></div>
 
         {/* Glow behind hero */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-125 h-87.5 md:h-112.5 bg-white dark:bg-white/5 blur-[120px] rounded-full -z-10 pointer-events-none opacity-60 transition-colors duration-300"></div>
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[500px] h-[350px] md:h-[450px] bg-white dark:bg-white/5 blur-[120px] rounded-full -z-10 pointer-events-none opacity-60 transition-colors duration-300"></div>
 
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs text-gray-700 dark:text-gray-300 font-semibold mb-8 cursor-default uppercase tracking-widest relative z-10 shadow-sm hover:shadow-md transition-all duration-300">
           <span className="flex h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]"></span>
           Now available for developers
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-black via-gray-800 to-gray-600 dark:from-white dark:via-zinc-200 dark:to-zinc-500 tracking-tight mb-6 md:mb-8 max-w-5xl mx-auto leading-[1.1] relative z-10">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-linear-to-b from-black via-gray-800 to-gray-600 dark:from-white dark:via-zinc-200 dark:to-zinc-500 tracking-tight mb-6 md:mb-8 max-w-5xl mx-auto leading-[1.1] relative z-10">
           The ultimate command center for your developer journey.
         </h1>
 
@@ -125,7 +135,7 @@ export default function LandingPage() {
       {/* 4. FOOTER CTA */}
       <footer className="bg-black dark:bg-[#050505] text-white py-20 md:py-28 px-6 text-center border-t border-gray-800 dark:border-white/5 relative overflow-hidden transition-colors duration-300">
         {/* Subtle glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-96 h-62.5 md:h-87.5 bg-white/5 blur-[100px] rounded-full -z-10 pointer-events-none transition-opacity duration-500"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-96 h-[250px] md:h-[350px] bg-white/5 blur-[100px] rounded-full -z-10 pointer-events-none transition-opacity duration-500"></div>
 
         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight max-w-4xl mx-auto leading-tight">Ready to organize your code?</h2>
         <p className="text-gray-300 dark:text-zinc-500 mb-8 md:mb-10 max-w-xl mx-auto text-base md:text-lg font-medium leading-relaxed">

@@ -72,10 +72,11 @@ export default async function ProjectDetails({ params }: PageProps) {
           <Link
             href={`/projects/${project.id}?source=dashboard`}
             target="_blank"
-            className="hidden sm:inline-flex items-center justify-center gap-2 bg-white dark:bg-white/5 text-gray-900 dark:text-white border border-gray-200/80 dark:border-white/10 px-5 py-2.5 rounded-xl font-bold shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:bg-gray-50 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer text-xs"
+            title="View Public Preview"
+            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-white/5 text-gray-900 dark:text-white border border-gray-200/80 dark:border-white/10 px-4 sm:px-5 py-2.5 rounded-xl font-bold shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:bg-gray-50 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer text-xs"
           >
-            <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            View Public Preview
+            <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            <span className="hidden sm:inline">View Public Preview</span>
           </Link>
           {isOwner && (
             <ProjectActions projectId={project.id} />

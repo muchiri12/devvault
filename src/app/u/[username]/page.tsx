@@ -122,8 +122,8 @@ export default async function PublicPortfolio({ params }: PageProps) {
       <ViewTracker profileId={profile.id} />
 
 
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
+      {/* Background linear gradient */}
+      <div className="absolute inset-0 z-[-1] bg-linear-to-b from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
 
       <div className="max-w-5xl mx-auto relative z-10">
 

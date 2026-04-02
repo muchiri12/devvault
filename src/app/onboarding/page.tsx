@@ -81,8 +81,8 @@ export default function OnboardingPage() {
     return (
         <div className="flex items-center justify-center min-h-screen bg-[#FAFAFA] dark:bg-[#050505] text-black dark:text-white relative z-0 px-4 sm:px-6 transition-colors duration-300">
 
-            {/* Background soft radial gradient */}
-            <div className="absolute inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
+            {/* Background soft linear gradient (Tailwind v4 compatible) */}
+            <div className="absolute inset-0 z-[-1] bg-linear-to-b from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
 
             <div className="w-full max-w-md relative z-10 text-center sm:text-left">
                 <form
