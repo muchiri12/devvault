@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import DraggableProjectList from "@/components/DraggableProjectList";
+import SafeProjectImage from "@/components/SafeProjectImage";
 
 interface PageProps {
   searchParams: Promise<{
@@ -26,13 +26,13 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   // PUBLIC PROJECTS
   const { data: projects } = await supabase
     .from("projects")
-    .select("*")
+    .select("*, profiles!inner(username, avatar_url)")
     .order("created_at", { ascending: false });
 
-  // MY projecTs
+  // MY PROJECTS
   const { data: myProjects } = await supabase
     .from("projects")
-    .select("*")
+    .select("*, profiles!inner(username, avatar_url)")
     .eq("user_id", user.id)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
@@ -100,41 +100,66 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         <DraggableProjectList initialProjects={myProjects || []} />
       ) : (
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-          {displayedProjects?.map((project) => (
+          {displayedProjects?.map((project, index) => (
             <Link
               key={project.id}
               href={project.user_id === user.id ? `/dashboard/projects/${project.id}` : `/projects/${project.id}?source=dashboard`}
               className="group flex flex-col h-full bg-white dark:bg-[#0A0A0A] rounded-4xl border border-gray-200/60 dark:border-white/5 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_12px_40px_rgba(255,255,255,0.02)] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
             >
-              {project.image_url ? (
-                 <div className="relative w-full h-52 bg-gray-50 dark:bg-white/5 overflow-hidden border-b border-gray-100/80 dark:border-white/5">
-                   <Image
-                     src={project.image_url}
-                     alt={project.title || "Project thumbnail"}
-                     fill
-                     sizes="(max-width:768px) 100vw, 33vw"
-                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                   />
-                 </div>
-              ) : (
-                 <div className="relative w-full h-52 bg-gray-50 dark:bg-white/5 flex flex-col items-center justify-center border-b border-gray-100/80 dark:border-white/5">
-                   <svg className="w-10 h-10 text-gray-300 dark:text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                   </svg>
-                   <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">No Image</span>
-                 </div>
-              )}
+              <div className="relative w-full h-52 bg-gray-50 dark:bg-white/5 overflow-hidden border-b border-gray-100/80 dark:border-white/5">
+                {project.image_url ? (
+                  <SafeProjectImage
+                    src={project.image_url}
+                    alt={project.title || "Project thumbnail"}
+                    sizes="(max-width:768px) 100vw, 33vw"
+                    priority={index < 2}
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center">
+                    <svg className="w-10 h-10 text-gray-300 dark:text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">No Image</span>
+                  </div>
+                )}
+              </div>
 
               <div className="p-8 flex flex-col grow">
-                <h3 className="font-extrabold text-xl mb-3 text-gray-900 dark:text-white transition-colors leading-tight truncate group-hover:text-black dark:group-hover:text-white">
+                <div className="flex items-center gap-2.5 mb-4">
+                  {project.profiles && (
+                    (() => {
+                      const profile: any = Array.isArray(project.profiles) ? project.profiles[0] : project.profiles;
+                      if (!profile) return null;
+                      return (
+                        <>
+                          <div className="w-6 h-6 relative rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0">
+                            {profile.avatar_url ? (
+                              <SafeProjectImage src={profile.avatar_url} alt={profile.username} className="object-cover w-full h-full" sizes="24px" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
+                                {profile.username?.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                            @{profile.username}
+                          </span>
+                        </>
+                      );
+                    })()
+                  )}
+                </div>
+
+                <h3 className="font-extrabold text-xl mb-2 text-gray-900 dark:text-white transition-colors leading-tight truncate group-hover:text-black dark:group-hover:text-white">
                   {project.title}
                 </h3>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-8 leading-relaxed">
+                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-6 leading-relaxed">
                   {project.short_description}
                 </p>
 
-                <div className="mt-auto pt-6 border-t border-gray-100/80 dark:border-white/5 flex items-center text-sm font-bold transition-colors group-hover:text-black dark:group-hover:text-white">
+                <div className="mt-auto pt-6 border-t border-gray-100/80 dark:border-white/5 flex items-center text-sm font-bold text-gray-400 dark:text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors">
                   View Project
                   <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

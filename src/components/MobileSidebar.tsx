@@ -141,7 +141,7 @@ export default function MobileSidebar({ isAdmin, username, avatarUrl, logoutActi
           >
             <div className="w-9 h-9 relative rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/10 shrink-0">
               {avatarUrl ? (
-                <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                <Image src={avatarUrl} alt="Avatar" fill sizes="36px" className="object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold bg-gray-100 dark:bg-gray-800">
                   {username.charAt(0).toUpperCase()}

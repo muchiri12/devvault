@@ -1,7 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import SafeProjectImage from "@/components/SafeProjectImage";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
   const [resolvedParams, resolvedSearchParams] = await Promise.all([params, searchParams]);
   const projectId = resolvedParams.id;
   const isFromDashboard = resolvedSearchParams.source === "dashboard";
+  const isFromExplore = resolvedSearchParams.source === "explore";
 
   const supabase = await createServerSupabaseClient();
 
@@ -102,13 +104,13 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
 
         {/* back button */}
         <Link
-          href={isFromDashboard ? `/dashboard/projects/${projectId}` : `/u/${creator.username}`}
+          href={isFromDashboard ? `/dashboard/projects/${projectId}` : isFromExplore ? "/explore" : `/u/${creator.username}`}
           className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-all mb-10 group"
         >
           <svg className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          {isFromDashboard ? "Back to Manage" : "Back to Portfolio"}
+          {isFromDashboard ? "Back to Manage" : isFromExplore ? "Back to Explore" : "Back to Portfolio"}
         </Link>
 
 
@@ -160,12 +162,11 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
         {/* hero image */}
         {project.image_url && (
           <div className="relative w-full aspect-video rounded-[3rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200/60 dark:border-white/5 shadow-2xl shadow-black/5 dark:shadow-black/20 mb-16">
-            <Image
+            <SafeProjectImage
               src={project.image_url}
               alt={project.title}
-              fill
-              priority
               sizes="(max-width:1024px) 100vw, 896px"
+              priority
               className="object-cover"
             />
           </div>
@@ -248,10 +249,9 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
                   key={img.id}
                   className="group relative aspect-video rounded-[2.5rem] overflow-hidden border border-gray-200/60 dark:border-white/5 shadow-xl bg-gray-100 dark:bg-zinc-800 transition-all hover:scale-[1.02] duration-500"
                 >
-                  <Image
+                  <SafeProjectImage
                     src={img.image_url}
                     alt="Project gallery image"
-                    fill
                     sizes="(max-width:768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -261,40 +261,52 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
           </div>
         )}
 
-        {/* THE "MEET THE CREATOR" HUB FOOTER - Only show if accessed from Dashboard */}
-        {isFromDashboard && (
-          <section className="bg-black dark:bg-white p-8 sm:p-14 rounded-[3.5rem] text-white dark:text-black shadow-2xl relative overflow-hidden group transition-colors duration-500">
-            <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-white/5 dark:bg-black/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+        {/* THE "MEET THE CREATOR" HUB FOOTER - Show to everyone */}
+        <section className="bg-black dark:bg-white p-8 sm:p-14 rounded-[3.5rem] text-white dark:text-black shadow-2xl relative overflow-hidden group transition-colors duration-500 mb-16">
+          <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-white/5 dark:bg-black/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-              <div className="relative shrink-0">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white/10 dark:border-black/5 shadow-2xl">
-                  {creator.avatar_url ? (
-                    <Image src={creator.avatar_url} alt={creator.username} width={128} height={128} className="object-cover w-full h-full" />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-800 dark:bg-zinc-100 flex items-center justify-center text-3xl font-black">{creator.username.charAt(0).toUpperCase()}</div>
-                  )}
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-8 h-8 rounded-full border-4 border-black dark:border-white flex items-center justify-center shadow-lg">
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 relative rounded-full overflow-hidden border-4 border-white/10 dark:border-black/5 shadow-2xl bg-zinc-800 dark:bg-zinc-100 flex items-center justify-center">
+                {creator.avatar_url ? (
+                  <SafeProjectImage src={creator.avatar_url} alt={creator.username} sizes="128px" className="object-cover w-full h-full" />
+                ) : (
+                  <div className="text-3xl font-black text-white dark:text-black">{creator.username.charAt(0).toUpperCase()}</div>
+                )}
               </div>
-
-              <div className="flex-1 text-center md:text-left">
-                <p className="text-[10px] uppercase font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-3">The Creator</p>
-                <h2 className="text-3xl sm:text-4xl font-black tracking-tighter mb-4 leading-tight">Designed & Built by @{creator.username}</h2>
-                <p className="text-gray-400 dark:text-gray-600 text-lg leading-relaxed mb-8 max-w-xl font-medium line-clamp-2">{creator.bio || "Full-stack developer focused on building high-performance web applications."}</p>
-                
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <Link href={`/u/${creator.username}`} className="w-full sm:w-auto px-10 py-4 bg-white dark:bg-black text-black dark:text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/20 text-center">Explore Full Portfolio</Link>
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">See {(projectCount || 1) - 1}+ other projects</span>
-                </div>
+              <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-8 h-8 rounded-full border-4 border-black dark:border-white flex items-center justify-center shadow-lg">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
               </div>
             </div>
-          </section>
-        )}
 
+            <div className="flex-1 text-center md:text-left">
+              <p className="text-[10px] uppercase font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-3">The Creator</p>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tighter mb-4 leading-tight">Designed & Built by @{creator.username}</h2>
+              <p className="text-gray-400 dark:text-gray-600 text-lg leading-relaxed mb-8 max-w-xl font-medium line-clamp-2">{creator.bio || "Developer focused on building high-performance web applications."}</p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-6">
+                <Link href={`/u/${creator.username}`} className="w-full sm:w-auto px-10 py-4 bg-white dark:bg-black text-black dark:text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/20 text-center">
+                  Explore Full Portfolio
+                </Link>
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                  See {projectCount ? (projectCount > 1 ? `${projectCount - 1}+ other projects` : "more work") : "portfolio"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
+
+      {/* Simple footer */}
+      <footer className="max-w-7xl mx-auto px-5 md:px-12 py-12 border-t border-gray-200/50 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400 dark:text-gray-500 font-medium bg-[#FAFAFA] dark:bg-[#050505] transition-colors duration-300 mt-auto">
+        <span>© {new Date().getFullYear()} DevVault</span>
+        <div className="flex items-center gap-5">
+          <Link href="/explore" className="hover:text-black dark:hover:text-white transition-colors">Explore</Link>
+          {!isFromDashboard && (
+            <Link href="/register" className="hover:text-black dark:hover:text-white transition-colors">Get Started</Link>
+          )}
+        </div>
+      </footer>
     </div>
   );
 }
