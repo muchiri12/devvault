@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import SafeProjectImage from "@/components/SafeProjectImage";
+import ViewTracker from "@/components/ViewTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,8 @@ export default async function PublicProjectDetails({ params, searchParams }: Pag
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#050505] text-black dark:text-white relative z-0 pb-24 transition-colors duration-300">
+      {/* THE INVISIBLE ANALYTICS TRACKER */}
+      <ViewTracker profileId={creator.id} />
       
       {/* Background linear gradient */}
       <div className="absolute inset-0 z-[-1] bg-linear-to-b from-zinc-200/20 dark:from-white/5 via-transparent to-transparent pointer-events-none" />

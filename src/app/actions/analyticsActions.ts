@@ -3,56 +3,69 @@
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
 import { headers } from "next/headers";
 
+// ← PRODUCTION MODE: 15-minute session cooldown
+const VIEW_COOLDOWN_MINUTES = 15; 
+
 export async function logProfileView(profileId: string) {
   const supabase = await createServerSupabaseClient();
-
-  // 1. Get the current user (if any)
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 2. self-vieW filter: If the viewer is the owner, don't count it.
+  // 1. Double-Check Identity: No self-counting for creators
   if (user?.id === profileId) {
-    console.log("Analytics: Filtering out owner's own view.");
     return;
   }
 
-  // 3. Get the viewer's IP address (fallback for guests)
+  // 2. Extract Client Identity (Safe Mode)
   const headerList = await headers();
   const rawIp = headerList.get("x-forwarded-for") || "";
-  const ipAddress = rawIp.split(',')[0].trim() || "unknown_ip";
+  const ipAddress = rawIp.split(',')[0].trim() || "unknown";
 
-  // 4. trck view for 15 mins
-  const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-
-
-  // Check  same viewer log exists in the last 15 minutes
-  const { data: recentView } = await supabase
+  // 3. Cooldown Check: Search for only the LATEST session from the history
+  const query = supabase
     .from("profile_views")
-    .select("id")
+    .select("created_at")
     .eq("profile_id", profileId)
-    .gte("created_at", fifteenMinsAgo)
-    .or(user ? `viewer_id.eq.${user.id}` : `viewer_ip.eq.${ipAddress}`)
-    .maybeSingle();
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-  if (!recentView) {
-    // If no recent view, increment the total odometer on the profile
-    await supabase.rpc('increment_total_views', { profile_id: profileId });
+  if (user) {
+    query.or(`viewer_id.eq.${user.id},viewer_ip.eq.${ipAddress}`);
+  } else {
+    query.eq("viewer_ip", ipAddress).is("viewer_id", null);
   }
 
+  const { data: latestSession } = await query.maybeSingle();
 
-  // Check if this same viewer has EVER viewed this profile
-  const { data: foreverView } = await supabase
-    .from("profile_views")
-    .select("id")
-    .eq("profile_id", profileId)
-    .or(user ? `viewer_id.eq.${user.id}` : `viewer_ip.eq.${ipAddress}`)
-    .maybeSingle();
+  const now = new Date();
+  let shouldIncrementViews = true;
 
-  // 5. If they have NEVER viewed it before, log the new unique visitor!
-  if (!foreverView) {
-    await supabase.from("profile_views").insert({
+  if (latestSession) {
+    // Check if the latest session is still "warm" (active cooldown)
+    const lastSessionTime = new Date(latestSession.created_at).getTime();
+    const minutesElapsed = (now.getTime() - lastSessionTime) / (1000 * 60);
+
+    if (minutesElapsed < VIEW_COOLDOWN_MINUTES) {
+      shouldIncrementViews = false;
+    }
+  }
+
+  // 4. Record New Session & Increment Odometer
+  if (shouldIncrementViews) {
+    // Add the new record to the history log
+    const { error: insertError } = await supabase.from("profile_views").insert({
       profile_id: profileId,
       viewer_ip: ipAddress,
-      viewer_id: user?.id || null
+      viewer_id: user?.id || null,
+      created_at: now.toISOString()
     });
+    
+    if (insertError && insertError.code !== "23505") {
+      shouldIncrementViews = false;
+    }
+  }
+
+  // Finally, call the odometer incrementer (the RPC)
+  if (shouldIncrementViews) {
+    await supabase.rpc('increment_total_views', { profile_id: profileId });
   }
 }
