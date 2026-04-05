@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 // ← PRODUCTION MODE: 15-minute session cooldown
 const VIEW_COOLDOWN_MINUTES = 15; 
 
-export async function logProfileView(profileId: string) {
+export async function logProfileView(profileId: string, logIdentity: boolean = false) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -28,8 +28,11 @@ export async function logProfileView(profileId: string) {
     .order("created_at", { ascending: false })
     .limit(1);
 
-  if (user) {
-    query.or(`viewer_id.eq.${user.id},viewer_ip.eq.${ipAddress}`);
+  // Identity logic for cooldowns
+  const effectiveViewerId = (user && logIdentity) ? user.id : null;
+
+  if (effectiveViewerId) {
+    query.or(`viewer_id.eq.${effectiveViewerId},viewer_ip.eq.${ipAddress}`);
   } else {
     query.eq("viewer_ip", ipAddress).is("viewer_id", null);
   }
@@ -55,7 +58,7 @@ export async function logProfileView(profileId: string) {
     const { error: insertError } = await supabase.from("profile_views").insert({
       profile_id: profileId,
       viewer_ip: ipAddress,
-      viewer_id: user?.id || null,
+      viewer_id: effectiveViewerId,
       created_at: now.toISOString()
     });
     

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ImageUploader from "@/components/ImageUploader";
+import ImageUploader from "@/components/shared/ImageUploader";
 import { saveProject } from "@/app/actions/projectActions";
 
 interface ProjectFormData {

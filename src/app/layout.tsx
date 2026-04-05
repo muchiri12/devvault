@@ -18,7 +18,8 @@ export const metadata: Metadata = {
   description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",
 };
 
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 
 export default function RootLayout({
   children,
@@ -37,6 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CookieBanner />
           <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>

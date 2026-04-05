@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import ProjectActions from "@/components/ProjectActions";
+import ProjectActions from "@/components/projects/ProjectActions";
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 import Image from "next/image";

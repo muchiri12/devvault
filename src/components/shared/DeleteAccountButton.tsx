@@ -4,7 +4,7 @@ import { useState } from "react";
 import { deleteUserAccount } from "@/app/actions/deleteAccount";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
-import DeleteModal from "@/components/DeleteModal";
+import DeleteModal from "@/components/shared/DeleteModal";
 
 export default function DeleteAccountButton() {
   const [open, setOpen] = useState(false);

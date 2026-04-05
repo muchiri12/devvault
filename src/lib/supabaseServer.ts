@@ -11,8 +11,12 @@ export function createServerSupabaseClient() {
         {
         cookies: {
             get: async (name: string) => (await cookieStore).get(name)?.value,
-            set:() => {},
-            remove: () => {},
+            set: (name: string, value: string, options: any) => {
+                cookieStore.then(store => store.set(name, value, options));
+            },
+            remove: (name: string, options: any) => {
+                cookieStore.then(store => store.set(name, "", { ...options, maxAge: 0 }));
+            },
         }
         },
     );

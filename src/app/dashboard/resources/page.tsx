@@ -19,9 +19,7 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) return null;
 
   // PUBLIC RESOURCES (approved only)
   const { data: resources } = await supabase
@@ -42,9 +40,10 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
     "use server";
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
     
     await supabase.from("resources").insert({
-      user_id: user?.id,
+      user_id: user.id,
       title: formData.get("title"),
       url: formData.get("url"),
       description: formData.get("description"),
@@ -53,14 +52,18 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
     revalidatePath("/dashboard/resources");
   }
 
-  // SERVER ACTION — DELETE RESOURCE
+  // SERVER ACTION — DELETE RESOURCE (Security Matched)
   async function deleteResource(formData: FormData){
     "use server";
     const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     await supabase
       .from("resources")
       .delete()
-      .eq("id", formData.get("id"));
+      .eq("id", formData.get("id"))
+      .eq("user_id", user.id); // <--- SECURITY PATCH: IDOR Protection
     revalidatePath("/dashboard/resources");
   }
 

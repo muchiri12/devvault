@@ -5,24 +5,15 @@ import Link from "next/link";
 export default async function AdminPage() {
   const supabase = await createServerSupabaseClient();
   
-  // get logged in user
+  // 1. Get Profile (Security is already enforced by Middleware)
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  // fetch profile
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
-
-  // check role
-  if (profile?.role !== "admin") {
-    redirect("/dashboard");
-  }
 
   return (
     <div className="max-w-6xl mx-auto w-full pb-20 transition-colors duration-300">

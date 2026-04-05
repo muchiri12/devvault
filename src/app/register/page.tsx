@@ -39,6 +39,8 @@ const barColors = [
   "bg-emerald-500",
 ];
 
+import { LegalLinks } from "@/components/shared/LegalLinks";
+
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -264,6 +266,10 @@ export default function RegisterPage() {
             </button>
           </p>
         </form>
+
+        <footer className="mt-10">
+          <LegalLinks />
+        </footer>
       </div>
     </div>
   );

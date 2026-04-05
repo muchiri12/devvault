@@ -133,7 +133,7 @@ export default function MobileSidebar({ isAdmin, username, avatarUrl, logoutActi
           </div>
         </div>
 
-        <div className="mt-auto pt-6 border-t border-gray-100 dark:border-white/5 space-y-3">
+        <div className="mt-auto px-1 pb-2 space-y-4 border-t border-gray-100 dark:border-white/5 pt-6">
           <Link
             href="/dashboard/profile/edit"
             onClick={() => setOpen(false)}
@@ -150,16 +150,16 @@ export default function MobileSidebar({ isAdmin, username, avatarUrl, logoutActi
             </div>
             <div className="flex flex-col overflow-hidden">
               <span className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-black dark:group-hover:text-white transition-colors duration-200">@{username || "developer"}</span>
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">View Profile</span>
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Manage Account</span>
             </div>
           </Link>
 
-          <form action={logoutAction}>
-            <button className="w-full flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10 px-5 py-3 rounded-2xl transition-all duration-300 font-bold border border-gray-100 dark:border-white/5 cursor-pointer text-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <form action={logoutAction} className="w-full">
+            <button className="w-full flex items-center justify-center gap-3 text-gray-400 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-900/40 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10 px-5 py-3 rounded-2xl transition-all duration-300 font-bold border border-gray-100 dark:border-white/5 cursor-pointer text-[11px] uppercase tracking-widest">
+              <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              Logout
+              Sign Out
             </button>
           </form>
         </div>

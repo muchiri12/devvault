@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import DeleteModal from "@/components/DeleteModal";
+import DeleteModal from "@/components/shared/DeleteModal";
 import { toast } from "sonner";
 
 export default function ProjectActions({ projectId }: { projectId: string }) {
