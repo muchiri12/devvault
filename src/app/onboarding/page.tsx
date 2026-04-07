@@ -133,7 +133,7 @@ export default function OnboardingPage() {
                         className="w-full flex items-center justify-center gap-3 relative group overflow-hidden bg-black dark:bg-white text-white dark:text-black font-bold text-[15px] p-4 rounded-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_5px_15px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] active:scale-[0.98] mt-4"
                     >
                         {/* Hover shine effect */}
-                        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 dark:via-black/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                        <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 dark:via-black/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
 
                         <span className="relative z-10 flex items-center justify-center gap-2 tracking-wide">
                             {isLoading ? "Setting up portfolio..." : "Complete Setup"}

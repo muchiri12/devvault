@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import DeleteAccountButton from "@/components/shared/DeleteAccountButton";
 import { Card } from "@/components/ui/Card";
@@ -32,12 +32,6 @@ function checkPasswordStrength(password: string): StrengthResult {
 
 const BAR_COLORS = ["bg-red-500", "bg-orange-400", "bg-emerald-500", "bg-emerald-500"];
 
-// ---- days since a date ----
-function daysSince(dateStr: string | null | undefined): number | null {
-  if (!dateStr) return null;
-  return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
-}
-
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -58,7 +52,7 @@ export default function SettingsPage() {
   const strength = checkPasswordStrength(newPassword);
   const isPasswordStrong = strength.score >= 3;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setMounted(true);
   }, []);
 
@@ -76,7 +70,6 @@ export default function SettingsPage() {
     fetchProfile();
   }, []);
 
-  const dayCount = daysSince(passwordLastChanged);
   const showSecurityBanner = !bannerDismissed && passwordLastChanged === null;
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
@@ -234,13 +227,32 @@ export default function SettingsPage() {
                   </div>
 
                   {newPassword.length > 0 && (
-                    <div className="px-4 space-y-2 animate-in slide-in-from-top-2 duration-300">
+                    <div className="px-4 space-y-3 animate-in fade-in duration-500">
                       <div className="flex gap-2">
                         {[0, 1, 2, 3].map((i) => (
                           <div key={i} className={`h-1 flex-1 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden`}><div className={`h-full transition-all duration-500 ${i < strength.score ? BAR_COLORS[strength.score - 1] : "w-0"}`} style={{ width: i < strength.score ? "100%" : "0%" }} /></div>
                         ))}
                       </div>
                       <span className={`text-[10px] font-extrabold uppercase tracking-widest ${strength.color}`}>{strength.label} Password</span>
+                      
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 flex-shrink-0 ${strength.checks.length ? "text-emerald-500" : "text-gray-300 dark:text-gray-600"}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                          <span className={strength.checks.length ? "text-gray-700 dark:text-gray-300" : "text-gray-500 dark:text-gray-500"}>At least 8 characters</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 flex-shrink-0 ${strength.checks.uppercase ? "text-emerald-500" : "text-gray-300 dark:text-gray-600"}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                          <span className={strength.checks.uppercase ? "text-gray-700 dark:text-gray-300" : "text-gray-500 dark:text-gray-500"}>Contains uppercase letter</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 flex-shrink-0 ${strength.checks.number ? "text-emerald-500" : "text-gray-300 dark:text-gray-600"}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                          <span className={strength.checks.number ? "text-gray-700 dark:text-gray-300" : "text-gray-500 dark:text-gray-500"}>Contains number</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 flex-shrink-0 ${strength.checks.special ? "text-emerald-500" : "text-gray-300 dark:text-gray-600"}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                          <span className={strength.checks.special ? "text-gray-700 dark:text-gray-300" : "text-gray-500 dark:text-gray-500"}>Contains special character</span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
