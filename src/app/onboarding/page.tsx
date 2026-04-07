@@ -119,7 +119,7 @@ export default function OnboardingPage() {
                             </span>
                             <input
                                 type="text"
-                                placeholder="dennis_dev"
+                                placeholder="your-username"
                                 className="w-full bg-transparent pr-4 py-4 outline-none text-gray-900 dark:text-white font-bold text-sm sm:text-base placeholder-gray-400 dark:placeholder-gray-600"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
