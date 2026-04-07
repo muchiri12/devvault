@@ -28,19 +28,42 @@ export async function updateProjectOrder(projects: { id: string; sort_order: num
   }
 }
 
-export async function saveProject(formData: {
+import { z } from "zod";
+
+const projectSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
+  industry: z.string().max(50, "Industry must be under 50 characters").optional().default(""),
+  short_description: z.string().max(500, "Description is too long").optional().default(""),
+  live_demo: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  github_repo: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+});
+
+export async function saveProject(rawFormData: {
   id?: string;
   title: string;
   industry: string;
   short_description: string;
-  live_demo?: string;   // matches DB column name
-  github_repo?: string; // matches DB column name
+  live_demo?: string;   
+  github_repo?: string; 
   image_url: string;
 }) {
   const supabase = await createServerSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
+
+  // VALIDATE INPUT ON SERVER
+  const validationResult = projectSchema.safeParse(rawFormData);
+  if (!validationResult.success) {
+    console.error("Zod Validation Failed:", validationResult.error.flatten());
+    // Normally you'd return the field errors to the UI, 
+    // but throwing here prevents the malicious DB query
+    return { success: false, error: "Invalid data format submitted." };
+  }
+
+  const formData = validationResult.data;
 
   try {
     if (formData.id) {

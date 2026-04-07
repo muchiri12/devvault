@@ -16,6 +16,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DevVault | The Developer Hub",
   description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",
+  openGraph: {
+    title: "DevVault | The Developer Hub",
+    description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",
+    url: "https://devvault.com", // You should replace this with the actual prod URL eventually
+    siteName: "DevVault",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevVault | The Developer Hub",
+    description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",
+  },
 };
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";

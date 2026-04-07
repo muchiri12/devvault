@@ -47,27 +47,40 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl
   const path = url.pathname
 
-  // Protect /dashboard
-  if (!user && path.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  // Admin Protection
-  if (user && path.startsWith('/dashboard/admin')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  }
-
   // Redirect Logged-In users away from Login/Register
   if (user && (path === '/login' || path === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Protect /dashboard from logged-out users
+  if (!user && (path.startsWith('/dashboard') || path === '/onboarding')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // ONBOARDING TRAP & ADMIN PROTECTION
+  if (user && (path.startsWith('/dashboard') || path === '/onboarding')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, role')
+      .eq('id', user.id)
+      .single()
+
+    const hasUsername = !!profile?.username;
+
+    // Trap incomplete users inside the Onboarding screen
+    if (!hasUsername && path.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/onboarding', request.url))
+    }
+
+    // Prevent fully onboarded users from going back to the Onboarding screen
+    if (hasUsername && path === '/onboarding') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // Admin Protection
+    if (path.startsWith('/dashboard/admin') && profile?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   return response

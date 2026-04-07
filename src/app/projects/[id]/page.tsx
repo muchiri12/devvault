@@ -10,6 +10,54 @@ import { Button } from "@/components/ui/Button";
 
 export const dynamic = "force-dynamic";
 
+import { Metadata, ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+  { params }: PageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolvedParams = await params;
+  const projectId = resolvedParams.id;
+  
+  // NOTE: In Next.js 14+, you can just use Supabase to fetch exactly what's needed for the tags.
+  // We recreate the client here because it's a completely separate lifecycle from the page component.
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: project } = await supabase
+    .from("projects")
+    .select("title, short_description, image_url, user_id")
+    .eq("id", projectId)
+    .single() as { data: Project | null };
+
+  if (!project) return { title: "Project Not Found | DevVault" };
+
+  const { data: creator } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", project.user_id)
+    .single() as { data: Profile | null };
+
+  const username = creator?.username || "Unknown Developer";
+  const ogImages = project.image_url ? [{ url: project.image_url, width: 1200, height: 630, alt: project.title }] : [];
+
+  return {
+    title: `${project.title} by @${username} | DevVault`,
+    description: project.short_description || `View ${project.title} on DevVault.`,
+    openGraph: {
+      title: `${project.title} | Hosted on DevVault`,
+      description: project.short_description || `View ${project.title} on DevVault.`,
+      images: ogImages,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title} by @${username}`,
+      description: project.short_description || `View ${project.title} on DevVault.`,
+      images: ogImages,
+    },
+  };
+}
+
 interface Project {
   id: string;
   user_id: string;

@@ -120,7 +120,7 @@ export default async function LandingPage() {
 
       {/* 4. FOOTER CTA */}
       <footer className="bg-black dark:bg-[#050505] text-white py-20 md:py-28 px-6 text-center border-t border-gray-800 dark:border-white/5 relative overflow-hidden transition-colors duration-300">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-96 h-[250px] md:h-[350px] bg-white/5 blur-[100px] rounded-full -z-10 pointer-events-none opacity-50 transition-opacity duration-500" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-96 h-62.5 md:h-87.5 bg-white/5 blur-[100px] rounded-full -z-10 pointer-events-none opacity-50 transition-opacity duration-500" />
 
         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight max-w-4xl mx-auto leading-tight">Ready to organize your code?</h2>
         <p className="text-gray-300 dark:text-zinc-500 mb-8 md:mb-10 max-w-xl mx-auto text-base md:text-lg font-medium leading-relaxed">
