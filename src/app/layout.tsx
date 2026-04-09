@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DevVault | The Developer Hub",
   description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",
+  verification: {
+    google: "1-Y04mOCMJnbd6GrFG1LcyulSc_L9hi1l1zUNrfMQPc",
+  },
   openGraph: {
     title: "DevVault | The Developer Hub",
     description: "Store your favorite coding resources, build stunning case studies, and showcase your projects to the community.",

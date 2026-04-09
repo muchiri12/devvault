@@ -48,6 +48,7 @@ export default function SettingsPage() {
 
   const [passwordLastChanged, setPasswordLastChanged] = useState<string | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [authProvider, setAuthProvider] = useState<string | null>(null);
 
   const strength = checkPasswordStrength(newPassword);
   const isPasswordStrong = strength.score >= 3;
@@ -60,6 +61,10 @@ export default function SettingsPage() {
     const fetchProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Detect auth provider (email, google, github, etc.)
+      setAuthProvider(user.app_metadata?.provider || "email");
+
       const { data: profile } = await supabase
         .from("profiles")
         .select("password_last_changed")
@@ -70,7 +75,8 @@ export default function SettingsPage() {
     fetchProfile();
   }, []);
 
-  const showSecurityBanner = !bannerDismissed && passwordLastChanged === null;
+  const isOAuthUser = authProvider !== null && authProvider !== "email";
+  const showSecurityBanner = !isOAuthUser && !bannerDismissed && passwordLastChanged === null;
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,8 +205,19 @@ export default function SettingsPage() {
 
             <div className="h-px bg-gray-100 dark:bg-white/5" />
 
-            {/* Password Form */}
-            <form onSubmit={handleUpdatePassword} className="space-y-6">
+            {/* Password Form — hidden for OAuth users */}
+            {isOAuthUser ? (
+              <div className="flex items-center gap-4 p-5 bg-blue-50/50 dark:bg-blue-500/5 border border-blue-200/50 dark:border-blue-500/10 rounded-2xl">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-blue-800 dark:text-blue-300">Signed in with Google</p>
+                  <p className="text-xs text-blue-600/70 dark:text-blue-400/60 font-medium">Your password is managed by your Google account.</p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleUpdatePassword} className="space-y-6">
               <label className="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest block ml-1">Change Password</label>
               
               <div className="space-y-4">
@@ -263,6 +280,7 @@ export default function SettingsPage() {
                 {passwordMessage.type === "success" && <Badge variant="success">{passwordMessage.text}</Badge>}
               </div>
             </form>
+            )}
           </Card>
         </section>
 
