@@ -6,7 +6,16 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LegalLinks } from "@/components/shared/LegalLinks";
 
-export default async function LandingPage() {
+export default async function LandingPage(props: { 
+  searchParams: Promise<{ code?: string }> 
+}) {
+  const searchParams = await props.searchParams;
+  const code = searchParams.code;
+
+  if (code) {
+    redirect(`/auth/callback?code=${code}`);
+  }
+
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
