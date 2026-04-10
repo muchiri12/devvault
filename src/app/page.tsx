@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LegalLinks } from "@/components/shared/LegalLinks";
 
+export const dynamic = 'force-dynamic';
+
 export default async function LandingPage(props: { 
   searchParams: Promise<{ code?: string }> 
 }) {
