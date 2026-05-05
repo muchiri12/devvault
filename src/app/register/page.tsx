@@ -15,6 +15,7 @@ interface StrengthResult {
     uppercase: boolean;
     number: boolean;
     special: boolean;
+    lowercase: boolean;
   };
 }
 
@@ -24,6 +25,7 @@ function checkPasswordStrength(password: string): StrengthResult {
     uppercase: /[A-Z]/.test(password),
     number: /[0-9]/.test(password),
     special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    lowercase:/[a-z]/.test(password)
   };
   const score = Object.values(checks).filter(Boolean).length;
   const labels = ["", "Weak", "Fair", "Strong", "Very Strong"];
@@ -57,6 +59,14 @@ export default function RegisterPage() {
 
   const handleRegister = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 1. Email Format Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (!isPasswordStrong) {
       setError("Please choose a stronger password before continuing.");
       return;
@@ -87,10 +97,11 @@ export default function RegisterPage() {
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true);
     setError("");
+    const siteUrl = window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback`,
       },
     });
     if (error) {
@@ -212,9 +223,8 @@ export default function RegisterPage() {
                     {[0, 1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                          i < strength.score ? barColors[strength.score] : "bg-gray-200 dark:bg-white/10"
-                        }`}
+                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${i < strength.score ? barColors[strength.score] : "bg-gray-200 dark:bg-white/10"
+                          }`}
                       />
                     ))}
                   </div>
@@ -230,12 +240,12 @@ export default function RegisterPage() {
                       { key: "uppercase", label: "Uppercase letter" },
                       { key: "number", label: "Number" },
                       { key: "special", label: "Special character" },
+                      { key: "lowercase", label: "Lowercase letter" },
                     ].map(({ key, label }) => (
-                      <li key={key} className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${
-                        strength.checks[key as keyof typeof strength.checks]
+                      <li key={key} className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${strength.checks[key as keyof typeof strength.checks]
                           ? "text-emerald-500"
                           : "text-gray-400 dark:text-gray-500"
-                      }`}>
+                        }`}>
                         <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {strength.checks[key as keyof typeof strength.checks] ? (
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -261,11 +271,10 @@ export default function RegisterPage() {
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className={`w-5 h-5 rounded-md border-2 transition-all duration-200 flex items-center justify-center ${
-                agreedToTerms
+              <div className={`w-5 h-5 rounded-md border-2 transition-all duration-200 flex items-center justify-center ${agreedToTerms
                   ? "bg-black dark:bg-white border-black dark:border-white"
                   : "border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 group-hover:border-gray-400 dark:group-hover:border-white/40"
-              }`}>
+                }`}>
                 {agreedToTerms && (
                   <svg className="w-3 h-3 text-white dark:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />

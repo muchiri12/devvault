@@ -8,8 +8,8 @@ import { LegalLinks } from "@/components/shared/LegalLinks";
 
 export const dynamic = 'force-dynamic';
 
-export default async function LandingPage(props: { 
-  searchParams: Promise<{ code?: string }> 
+export default async function LandingPage(props: {
+  searchParams: Promise<{ code?: string }>
 }) {
   const searchParams = await props.searchParams;
   const code = searchParams.code;
@@ -29,7 +29,7 @@ export default async function LandingPage(props: {
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#050505] selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black font-sans flex flex-col text-gray-900 transition-colors duration-300 relative z-0">
       {/* Background soft linear gradient */}
       <div className="absolute inset-0 z-[-1] bg-linear-to-b from-white dark:from-[#0A0A0A] via-[#FAFAFA] dark:via-[#050505] to-[#F2F2F2] dark:to-[#000000] transition-colors duration-300" />
-      
+
       {/* 1. NAVIGATION BAR */}
       <div className="sticky top-0 z-50 w-full bg-[#FAFAFA]/90 dark:bg-[#050505]/90 backdrop-blur-md border-b border-gray-200/40 dark:border-white/5 transition-colors duration-300">
         <nav className="flex items-center justify-between px-5 md:px-12 py-4 md:py-5 max-w-7xl mx-auto w-full">
@@ -55,7 +55,7 @@ export default async function LandingPage(props: {
       <main className="max-w-7xl mx-auto px-6 pt-20 md:pt-32 pb-24 md:pb-40 text-center flex-1 w-full flex flex-col items-center justify-center relative overflow-hidden">
         {/* Subtle grid background */}
         <div className="absolute inset-0 -z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGgyMHYyMEgyMHoiIGZpbGw9IiMwMDAwMDAwMiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+')] dark:opacity-[0.05] opacity-[0.15] pointer-events-none transition-opacity duration-300" />
-        
+
         {/* Glow behind hero */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[500px] h-[350px] md:h-[450px] bg-white dark:bg-white/5 blur-[120px] rounded-full -z-10 pointer-events-none opacity-60 transition-colors duration-300" />
 

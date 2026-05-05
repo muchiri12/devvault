@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface StrengthResult {
   score: number;
@@ -39,8 +40,21 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
+
   const strength = checkPasswordStrength(password);
   const isPasswordStrong = strength.score >= 3;
+
+  // 1. Verify session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setHasSession(!!session);
+      setIsVerifying(false);
+    };
+    checkSession();
+  }, []);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +99,32 @@ export default function ResetPasswordPage() {
             </div>
           </div>
 
-          {success ? (
+          {isVerifying ? (
+            <div className="flex flex-col items-center gap-4 text-center py-8">
+              <div className="w-10 h-10 border-4 border-black/10 dark:border-white/10 border-t-black dark:border-t-white rounded-full animate-spin" />
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Verifying your link...</p>
+            </div>
+          ) : !hasSession ? (
+            <div className="flex flex-col items-center gap-6 text-center">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-100 dark:border-red-500/20">
+                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-gray-900 dark:text-white">Invalid or Expired Link</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  This reset link is either missing, has already been used, or has expired.
+                </p>
+              </div>
+              <Link
+                href="/forgot-password"
+                className="w-full bg-black dark:bg-white text-white dark:text-black font-bold text-sm p-4 rounded-xl transition-all hover:bg-gray-800 dark:hover:bg-gray-100 text-center"
+              >
+                Request New Link
+              </Link>
+            </div>
+          ) : success ? (
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-100 dark:border-emerald-500/20">
                 <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
