@@ -39,7 +39,7 @@ export default async function DashboardOverviewPage() {
       </header>
 
       {/* Profile Overview Card */}
-      <Card border={false} className="!p-0 overflow-hidden bg-white dark:bg-[#0A0A0A] border border-gray-100 dark:border-orange-500 shadow-2xl shadow-black/5  dark:hover:bg-orange-500/30 :">
+      <Card border={false} className="!p-0 overflow-hidden bg-white dark:bg-[#0A0A0A] border border-gray-100  shadow-2xl shadow-black/5   :">
         
         {/* Card Header */}
         <div className="p-8 sm:p-10 border-b border-gray-50 dark:border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
