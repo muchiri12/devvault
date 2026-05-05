@@ -53,6 +53,7 @@ export default function SafeProjectImage({
       src={src}
       alt={alt}
       fill
+      unoptimized
       sizes={sizes}
       priority={priority}
       className={className}

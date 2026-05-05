@@ -75,6 +75,7 @@ export default function ImageUploader({
             src={preview}
             alt="Project Preview"
             fill
+            unoptimized
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
           />

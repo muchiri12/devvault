@@ -151,6 +151,7 @@ export default async function ProjectDetails({ params }: PageProps) {
             alt={project.title}
             fill
             priority
+            unoptimized
             sizes="(max-width:1024px) 100vw, 896px"
             className="object-cover"
           />
@@ -246,6 +247,7 @@ export default async function ProjectDetails({ params }: PageProps) {
                       src={img.image_url}
                       alt="Project gallery image"
                       fill
+                      unoptimized
                       sizes="(max-width:768px) 100vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />

@@ -68,17 +68,28 @@ export const projectService = {
    * Fetch a single project by ID.
    */
   async getProjectById(supabase: SupabaseClient, id: string) {
-    const { data, error } = await supabase
+    // 1. Fetch the project
+    const { data: project, error: projectError } = await supabase
       .from("projects")
-      .select(`
-        *,
-        project_images (*)
-      `)
+      .select("*")
       .eq("id", id)
       .single();
 
-    if (error) throw error;
-    return data;
+    if (projectError) throw projectError;
+
+    // 2. Fetch the images separately to avoid join ambiguity
+    const { data: images, error: imagesError } = await supabase
+      .from("project_images")
+      .select("*")
+      .eq("project_id", id);
+
+    if (imagesError) throw imagesError;
+
+    // 3. Merge them manually
+    return {
+      ...project,
+      project_images: images || []
+    };
   },
 
   /**
