@@ -146,5 +146,65 @@ export const adminService = {
       .eq("id", id);
 
     if (error) throw error;
+  },
+
+  /**
+   * Delete a user and cleanup all their storage assets (avatars, project images).
+   */
+  async deleteUserWithCleanup(supabaseAdmin: any, userId: string) {
+    // 1. Fetch user's projects to identify images to delete
+    const { data: projects } = await supabaseAdmin
+      .from("projects")
+      .select("id, image_url")
+      .eq("user_id", userId);
+
+    const projectFilesToRemove = new Set<string>();
+    const projectIds = projects?.map((p: any) => p.id) || [];
+
+    // Collect project hero images
+    projects?.forEach((p: any) => {
+      if (p.image_url) {
+        const fileName = p.image_url.split("/").pop();
+        if (fileName) projectFilesToRemove.add(fileName);
+      }
+    });
+
+    // Collect gallery images
+    if (projectIds.length > 0) {
+      const { data: gallery } = await supabaseAdmin
+        .from("project_images")
+        .select("image_url")
+        .in("project_id", projectIds);
+
+      gallery?.forEach((g: any) => {
+        if (g.image_url) {
+          const fileName = g.image_url.split("/").pop();
+          if (fileName) projectFilesToRemove.add(fileName);
+        }
+      });
+    }
+
+    // 2. Delete project images from storage
+    if (projectFilesToRemove.size > 0) {
+      await supabaseAdmin.storage
+        .from("project-images")
+        .remove(Array.from(projectFilesToRemove));
+    }
+
+    // 3. Delete avatar folder
+    const { data: avatarFiles } = await supabaseAdmin.storage
+      .from("avatars")
+      .list(userId);
+
+    if (avatarFiles && avatarFiles.length > 0) {
+      const avatarPaths = avatarFiles.map((x: any) => `${userId}/${x.name}`);
+      await supabaseAdmin.storage.from("avatars").remove(avatarPaths);
+    }
+
+    // 4. Delete the user from auth (cascades to profile + projects)
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) throw error;
+
+    return { success: true };
   }
 };

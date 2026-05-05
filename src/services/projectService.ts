@@ -127,9 +127,58 @@ export const projectService = {
       .from("projects")
       .select("*")
       .eq("user_id", profile.id)
-      .order("created_at", { ascending: false });
+      .order("sort_order", { ascending: true }); // Use sort_order
 
     if (error) throw error;
     return data || [];
+  },
+
+  /**
+   * Create or update a project.
+   */
+  async saveProject(supabase: SupabaseClient, userId: string, input: Partial<ProjectInput> & { id?: string }) {
+    if (input.id) {
+      const { error } = await supabase
+        .from("projects")
+        .update(input)
+        .eq("id", input.id)
+        .eq("user_id", userId);
+      if (error) throw error;
+      return { id: input.id };
+    } else {
+      // Get next sort order
+      const { data: existingProjects } = await supabase
+        .from("projects")
+        .select("sort_order")
+        .eq("user_id", userId)
+        .order("sort_order", { ascending: false })
+        .limit(1);
+
+      const nextSortOrder = (existingProjects?.[0]?.sort_order ?? -1) + 1;
+
+      const { data, error } = await supabase
+        .from("projects")
+        .insert([{ ...input, user_id: userId, sort_order: nextSortOrder }])
+        .select("id")
+        .single();
+      
+      if (error) throw error;
+      return data;
+    }
+  },
+
+  /**
+   * Update the sort order for multiple projects.
+   */
+  async updateOrder(supabase: SupabaseClient, userId: string, projectOrders: { id: string, sort_order: number }[]) {
+    const updates = projectOrders.map((p) =>
+      supabase
+        .from("projects")
+        .update({ sort_order: p.sort_order })
+        .eq("id", p.id)
+        .eq("user_id", userId)
+    );
+
+    await Promise.all(updates);
   }
 };

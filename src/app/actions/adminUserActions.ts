@@ -104,6 +104,8 @@ export async function updateUserRole(userId: string, role: "user" | "admin") {
 }
 
 
+import { adminService } from "@/services/adminService";
+
 // DELETE USER (ADMIN VERSION)
 
 export async function adminDeleteUser(userId: string) {
@@ -156,58 +158,8 @@ export async function adminDeleteUser(userId: string) {
       },
     });
 
-    // 5. Fetch user's projects
-    const { data: projects } = await supabaseAdmin
-      .from("projects")
-      .select("id, image_url")
-      .eq("user_id", userId);
-
-    const projectFilesToRemove = new Set<string>();
-    const projectIds = projects?.map((p) => p.id) || [];
-
-    // 5. Collect project hero images
-    projects?.forEach((p) => {
-      if (p.image_url) {
-        const fileName = p.image_url.split("/").pop();
-        if (fileName) projectFilesToRemove.add(fileName);
-      }
-    });
-
-    // 6. Collect gallery images
-    if (projectIds.length > 0) {
-      const { data: gallery } = await supabaseAdmin
-        .from("project_images")
-        .select("image_url")
-        .in("project_id", projectIds);
-
-      gallery?.forEach((g) => {
-        if (g.image_url) {
-          const fileName = g.image_url.split("/").pop();
-          if (fileName) projectFilesToRemove.add(fileName);
-        }
-      });
-    }
-
-    // 7. Delete project images from storage
-    if (projectFilesToRemove.size > 0) {
-      await supabaseAdmin.storage
-        .from("project-images")
-        .remove(Array.from(projectFilesToRemove));
-    }
-
-    // 8. Delete avatar folder
-    const { data: avatarFiles } = await supabaseAdmin.storage
-      .from("avatars")
-      .list(userId);
-
-    if (avatarFiles && avatarFiles.length > 0) {
-      const avatarPaths = avatarFiles.map((x) => `${userId}/${x.name}`);
-      await supabaseAdmin.storage.from("avatars").remove(avatarPaths);
-    }
-
-    // 9. Delete the user from auth (cascades profile + projects via FK)
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (error) return { error: error.message };
+    // 6. PERFORM CLEANUP AND DELETION VIA SERVICE
+    await adminService.deleteUserWithCleanup(supabaseAdmin, userId);
 
     return { success: true };
   } catch (error) {

@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { adminService } from "./adminService";
 
 /**
  * Service to handle all User Profile-related database operations.
@@ -45,5 +46,13 @@ export const profileService = {
 
     if (error) return false;
     return data?.role === "admin";
+  },
+
+  /**
+   * Delete the current user's account and all associated data.
+   * Requires an admin client to perform the auth deletion.
+   */
+  async deleteSelf(supabaseAdmin: any, userId: string) {
+    return await adminService.deleteUserWithCleanup(supabaseAdmin, userId);
   }
 };
