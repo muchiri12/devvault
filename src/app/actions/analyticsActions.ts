@@ -3,7 +3,7 @@
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
 import { headers } from "next/headers";
 
-// ← PRODUCTION MODE: 15-minute session cooldown
+// ← 15-minute session cooldown
 const VIEW_COOLDOWN_MINUTES = 15; 
 
 export async function logProfileView(profileId: string, logIdentity: boolean = false) {
